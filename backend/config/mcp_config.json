@@ -1,0 +1,30 @@
+{
+  "mcp": {
+    "inputs": [
+      {
+        "type": "promptString",
+        "id": "postgres_uri",
+        "description": "PostgreSQL Database URI",
+        "password": false
+      }
+    ],
+    "servers": {
+      "postgres": {
+        "command": "docker",
+        "args": [
+          "run",
+          "-i",
+          "--rm",
+          "-e",
+          "DATABASE_URI",
+          "crystaldba/postgres-mcp",
+          "--access-mode=unrestricted"
+        ],
+        "env": {
+          "DATABASE_URI": "${input:postgres_uri}"
+        },
+        "transport": "stdio"
+      }
+    }
+  }
+}

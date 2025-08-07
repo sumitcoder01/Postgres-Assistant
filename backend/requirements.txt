@@ -1,0 +1,26 @@
+#FastAPI and Server
+fastapi
+uvicorn
+
+#Core LangChain/LangGraph Libraries
+langchain
+langgraph
+langchain_core
+
+#MCP Adapter for dynamic tool loading
+langchain-mcp-adapters
+
+#LLM Provider Integrations
+langchain-openai
+langchain-google-genai
+langchain-anthropic
+langchain-groq
+
+#Checkpointer for short-term memory
+langgraph-checkpoint-sqlite
+
+#Configuration management
+python-dotenv
+
+#Required by FastAPI for form data, good practice to include
+python-multipart
