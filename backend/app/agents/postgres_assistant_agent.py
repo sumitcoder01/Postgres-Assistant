@@ -63,6 +63,7 @@ async def create_agent():
         "After you get the result from a tool, summarize it in a clear, "
         "easy-to-understand way. Be polite and concise."
     )
+    
     prompt = ChatPromptTemplate.from_messages(
         [
             ("system", system_prompt),
@@ -70,8 +71,10 @@ async def create_agent():
         ]
     )
     
-    agent = create_react_agent(model=llm, tools=tools , prompt = system_prompt)
+    agent = create_react_agent(model=llm, tools=tools, prompt=prompt)
     print("✅ Agent created and compiled successfully.")
+    
+    return agent
     
     return agent
 

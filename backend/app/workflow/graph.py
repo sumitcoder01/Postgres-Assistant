@@ -10,9 +10,17 @@ async def build_graph():
     # Set up the checkpointer for persistent memory.
     memory = MemorySaver()
     print("📝 Short-term memory (checkpointer) enabled using In-Memory Saver.")
-
     postgres_agent = await get_agent_executor()
-    workflow.add_node("postgres-agent", postgres_agent)
+
+    def postgres_node(state: State):
+        """
+        This node invokes the ReAct agent with the current state and returns
+        the agent's final response to update the state.
+        """
+        result = postgres_agent.invoke(state)
+        return {"messages": result["messages"]}
+
+    workflow.add_node("postgres-agent", postgres_node)
     workflow.set_entry_point("postgres-agent")
     workflow.add_edge("postgres-agent" , END)
     graph = workflow.compile(checkpointer=memory)

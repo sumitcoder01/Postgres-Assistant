@@ -38,9 +38,12 @@ async def chat_stream(request: Request):
                     kind = event.get("event")
 
                     if kind == "on_chat_model_stream":
-                        content = event["data"].get("chunk", {}).get("content")
-                        if content:
-                            yield f"data: {json.dumps({'type': 'token', 'content': content})}\n\n"
+                        chunk = event["data"].get("chunk")  # Get the AIMessageChunk object
+                        if chunk:
+                            content = chunk.content         # Access its .content attribute
+                            if content:
+                                # Yield the content if it's not empty
+                                yield f"data: {json.dumps({'type': 'token', 'content': content})}\n\n"
 
                     elif kind == "on_tool_start":
                         yield f"data: {json.dumps({'type': 'tool_start', 'tool': event.get('name'), 'input': event['data'].get('input')})}\n\n"
