@@ -44,6 +44,7 @@ graph TD
 
 🚀 Getting Started
 You can run the backend server either directly on your local machine or using Docker.
+  # On Windows, use `venv\Scripts\activate`
 
 Prerequisites
 Python (v3.10 or newer)
@@ -78,8 +79,7 @@ It's highly recommended to use a Python virtual environment.
 
 # Create and activate a virtual environment
 python -m venv venv
-source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
-
+source venv/bin/activate
 # Install the packages
 pip install -r requirements.txt
 

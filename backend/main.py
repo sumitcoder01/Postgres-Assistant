@@ -1,9 +1,7 @@
-# postgres-assistant/backend/main.py
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1.endpoints import chat
-from app.agents.postgres_assistant_agent import get_agent_executor
+from app.workflow.graph import get_graph_executor
 
 # Create the main FastAPI application instance
 app = FastAPI(
@@ -16,9 +14,10 @@ app = FastAPI(
 # This allows the frontend (running on a different domain/port) to make
 # requests to this backend API. It's a crucial security feature for web apps.
 origins = [
-    "*",
     # "http://localhost:5173",  # Default port for Vite/React dev server
-    # "http://127.0.0.1:5173",   
+    # "http://127.0.0.1:5173",
+    # In production, you would add your frontend's domain here.
+    "*"
 ]
 
 app.add_middleware(
@@ -38,7 +37,7 @@ async def startup_event():
     ready to handle requests without any delay on the first call.
     """
     print("--- Application Startup ---")
-    await get_agent_executor()
+    await get_graph_executor()
     print("--- Application is now ready to accept requests ---")
 
 

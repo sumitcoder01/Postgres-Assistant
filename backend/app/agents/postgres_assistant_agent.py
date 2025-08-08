@@ -3,8 +3,8 @@
 import asyncio
 import json
 from pathlib import Path
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langgraph.prebuilt import create_react_agent
-from langgraph.checkpoint.sqlite import SqliteSaver
 from langchain_mcp_adapters.client import MultiServerMCPClient
 
 from app.core.settings import settings
@@ -55,14 +55,22 @@ async def create_agent():
     llm = get_llm()
     print(f"🧠 LLM Provider configured: {settings.LLM_PROVIDER.upper()}")
 
-    # 5. Set up the checkpointer for short-term memory.
-    # This saves conversation state into a local SQLite database file.
-    memory = SqliteSaver.from_conn_string("checkpoints.sqlite")
-    print("📝 Short-term memory (checkpointer) enabled using SQLite.")
 
-    # 6. Create the ReAct agent using the pre-built LangGraph function.
-    # This combines the LLM, tools, and memory into a runnable graph.
-    agent = create_react_agent(model=llm, tools=tools, checkpointer=memory)
+    system_prompt = (
+        "You are a helpful and expert PostgreSQL assistant. "
+        "Your role is to help users analyze and optimize their database. "
+        "When you use a tool, briefly inform the user what you are doing. "
+        "After you get the result from a tool, summarize it in a clear, "
+        "easy-to-understand way. Be polite and concise."
+    )
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            ("system", system_prompt),
+            MessagesPlaceholder(variable_name="messages"),
+        ]
+    )
+    
+    agent = create_react_agent(model=llm, tools=tools , prompt = system_prompt)
     print("✅ Agent created and compiled successfully.")
     
     return agent
