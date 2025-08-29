@@ -1,18 +1,14 @@
 {
   "mcpServers": {
       "postgres": {
-        "command": "docker",
+        "command": "python",
         "args": [
-          "run",
-          "-i",
-          "--rm",
-          "--network", 
-          "postgres-assistant_pg-assistant-net",
-          "mcp/postgres",
+          "-u",
+          "mcp-servers/sql_mcp_server.py",
           "${input:pg_url}"
         ],
-        "transport": "stdio"
+        "transport": "stdio",
+        "cwd": "."
       }
     }
-  }
-
+}

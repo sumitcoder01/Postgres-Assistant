@@ -6,9 +6,11 @@ uvicorn
 langchain
 langgraph
 langchain_core
+langchain_community
 
 #MCP Adapter for dynamic tool loading
 langchain-mcp-adapters
+fastmcp
 
 #LLM Provider Integrations
 langchain-openai
@@ -24,3 +26,5 @@ python-dotenv
 
 #Required by FastAPI for form data, good practice to include
 python-multipart
+
+psycopg2

@@ -52,61 +52,22 @@ async def create_agent():
     tools = await mcp_client.get_tools()
     print(f"🛠️  Tools loaded successfully: {[tool.name for tool in tools]}")
 
-    # 5. Fetch the database schema resources from the MCP server.
-    print("📄 Fetching database schema resources...")
-    # The server_name must match the key used in your mcp_config.json's "servers" block.
-    resources = await mcp_client.get_resources(server_name="postgres")
-    
-    schema_descriptions = []
-    for resource in resources:
-        try:
-            # 1. Get the URI from the metadata and the table name from the URI
-            uri_str = str(resource.metadata['uri'])
-            table_name = uri_str.split('/')[-2]
-
-            # 2. **THE FIX**: resource.data is a JSON STRING. Parse it with json.loads().
-            schema_json_string = resource.data
-            columns_data = json.loads(schema_json_string)
-            
-            # 3. Now that columns_data is a proper list of dictionaries, format it
-            column_defs = [f"- {col['column_name']} ({col['data_type']})" for col in columns_data]
-
-            # 4. Combine and append the full table description
-            full_table_description = f"Table `{table_name}`:\n" + "\n".join(column_defs)
-            schema_descriptions.append(full_table_description)
-            
-        except Exception as e:
-            uri_for_error = str(resource.metadata.get('uri', 'unknown')) if hasattr(resource, 'metadata') else 'unknown'
-            print(f"⚠️ Could not parse schema for resource '{uri_for_error}': {e}")
-            
-    # --- END OF SCHEMA PARSING ---
-
-    # --- Final Prompt Assembly ---
-    database_schema_string = "\n\n".join(schema_descriptions)
-    if not database_schema_string:
-        print("⚠️ Warning: No database schema information was loaded.")
-        database_schema_string = "No schema information is available to the agent."
-    else:
-        print("✅ Database schema loaded successfully. Passing to agent.")
-        print("--- SCHEMA FOR AGENT ---")
-        print(database_schema_string)
-        print("------------------------")
-
-
-    # 6. Get the configured LLM instance.
     llm = get_llm()
     print(f"🧠 LLM Provider configured: {settings.LLM_PROVIDER.upper()}")
-    database_schema_string = ""
+
+   
     system_prompt = (
         "You are a helpful and expert PostgreSQL assistant. "
-        "Your role is to help users analyze and optimize their database by writing and executing `query` tools. "
-        "You MUST use the provided database schema below to write accurate SQL queries. "
-        "When you use a tool, briefly inform the user what you are doing. "
-        "After you get the result from a tool, summarize it in a clear, easy-to-understand way. "
-        "Be polite and concise."
-        "\n\n--- DATABASE SCHEMA ---\n"
-        f"{database_schema_string}"
-        "\n--- END SCHEMA ---"
+        "Your primary role is to help users by answering their questions about the database.\n"
+        "To do this, you have access to a set of powerful tools:\n"
+        "- `sql_db_query`: To run SQL queries.\n"
+        "- `sql_db_schema`: To inspect the schema of specific tables.\n"
+        "- `sql_db_list_tables`: To list all tables in the database.\n\n"
+        "Your workflow should be:\n"
+        "1. First, use `sql_db_list_tables` to see what tables are available.\n"
+        "2. Then, use `sql_db_schema` on the most relevant tables to understand their columns.\n"
+        "3. Finally, construct a SQL query using `sql_db_query` to answer the user's question.\n"
+        "Summarize the final result in a clear and easy-to-understand way."
     )
     
     prompt = ChatPromptTemplate.from_messages(
