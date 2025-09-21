@@ -62,7 +62,7 @@ def get_llm() -> BaseChatModel:
             raise ValueError("LLM_PROVIDER is 'groq', but GROQ_API_KEY is not set.")
         return ChatGroq(
             api_key=settings.GROQ_API_KEY, 
-            model="llama3-70b-8192", 
+            model="llama-3.1-8b-instant", 
             temperature=0, 
             streaming=True
         )

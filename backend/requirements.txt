@@ -27,4 +27,4 @@ python-dotenv
 #Required by FastAPI for form data, good practice to include
 python-multipart
 
-psycopg2
+psycopg2-binary
