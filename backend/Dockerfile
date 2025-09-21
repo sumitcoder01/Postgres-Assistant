@@ -1,45 +1,29 @@
-# --- Stage 1: Builder ---
-# This stage installs dependencies and builds the application.
-FROM python:3.12-slim as builder
+# Step 1: Use an official, lightweight Python image
+FROM python:3.12-slim
 
+# Step 2: Set the working directory inside the container
 WORKDIR /app
 
-# Install system dependencies needed for building some packages
+# Step 3: Install system dependencies needed to build psycopg2
 RUN apt-get update && apt-get install -y --no-install-recommends build-essential
 
-RUN pip install --upgrade pip
+# Step 4: Copy only the requirements file first for layer caching
 
 COPY requirements.txt .
 
-# Install Python dependencies from requirements.txt
+# Step 5: Install the Python dependencies
+# Using psycopg2-binary is recommended to avoid the build step, but this works too.
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of your application code
+# Step 6: Copy the entire backend source code from the build context
 COPY . .
 
-# --- Stage 2: Final Image ---
-# This is the lean image that will be deployed.
-FROM python:3.12-slim
+# Step 7 Set the PYTHONPATH environment variable
 
-WORKDIR /app
-
-# Create a non-root user for security
-RUN useradd --create-home appuser
-USER appuser
-
-# Set the PYTHONPATH so Python can find your 'app' module from '/app'
 ENV PYTHONPATH="/app"
 
-# Copy the installed Python packages from the builder stage
-COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
-
-# Copy the executables (like uvicorn) from the builder stage
-COPY --from=builder /usr/local/bin /usr/local/bin
-
-# Copy the application code from the builder stage
-COPY --from=builder /app .
-
+# Step 8: Expose the port the app will run on
 EXPOSE 8000
 
-# The command to run the application
+# Step 9: The command to run the application for the CURRENT project
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
